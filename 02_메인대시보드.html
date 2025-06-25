@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>흥국생명 With You - 대시보드</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f9f9fb;
+    }
+    header {
+      background: #fff;
+      border-bottom: 1px solid #ddd;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    h1 {
+      color: #E6007E;
+      font-size: 22px;
+      margin: 0;
+    }
+    .user-profile {
+      font-size: 14px;
+      color: #555;
+    }
+    .logout-btn {
+      background: #E6007E;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      font-size: 13px;
+      cursor: pointer;
+      margin-left: 10px;
+    }
+    .section {
+      padding: 20px;
+    }
+    .section-title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 16px;
+      color: #E6007E;
+    }
+    .course-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 20px;
+    }
+    .course-card {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+      cursor: pointer;
+      overflow: hidden;
+      transition: transform 0.2s;
+    }
+    .course-card:hover {
+      transform: scale(1.02);
+    }
+    .course-thumb {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+    }
+    .course-info {
+      padding: 12px;
+    }
+    .course-title {
+      font-size: 15px;
+      font-weight: bold;
+      margin-bottom: 4px;
+    }
+    .progress {
+      height: 6px;
+      background: #eee;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .progress-bar {
+      height: 100%;
+      background: #E6007E;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.8);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .modal-content {
+      position: relative;
+      width: 90%;
+      max-width: 800px;
+      background: #000;
+      border-radius: 8px;
+    }
+    .modal iframe {
+      width: 100%;
+      height: 450px;
+      border: none;
+      border-radius: 8px;
+    }
+    .modal-close {
+      position: absolute;
+      top: 10px;
+      right: 16px;
+      font-size: 28px;
+      color: #fff;
+      background: none;
+      border: none;
+      cursor: pointer;
+      z-index: 1001;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 영상 모달 -->
+  <div class="modal" id="videoModal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+      <iframe id="videoFrame" src="" allow="autoplay; fullscreen" allowfullscreen></iframe>
+    </div>
+  </div>
+
+  <!-- 헤더 -->
+  <header>
+    <h1>흥국생명 With You</h1>
+    <div>
+      <span class="user-profile" id="userProfile">프로필 불러오는 중...</span>
+      <button class="logout-btn" onclick="resetProfile()">프로필 초기화</button>
+    </div>
+  </header>
+
+  <!-- 본문 -->
+  <div class="section">
+    <div class="section-title">📚 맞춤 강의 탭</div>
+    <p id="welcomeText">환영합니다!</p>
+    <div class="course-list" id="courseList"></div>
+  </div>
+
+  <!-- 스크립트 -->
+  <script>
+    const profileNameMap = {
+      ga: 'GA 설계사',
+      hk: 'HK 설계사',
+      db: 'DB 설계사',
+      duty: '의무 담당자'
+    };
+
+    const courseData = {
+      ga: [
+        { title: 'GA 영업 전략', progress: 80, vimeoId: '1082024006', h: '89d34c210e' },
+        { title: 'GA 고객 응대법', progress: 55, vimeoId: '1077160641', h: '055bcbadff' }
+      ],
+      hk: [
+        { title: 'HK 상품 설명 스킬', progress: 65, vimeoId: '1082093608', h: '317cb41608' },
+        { title: '화법 개선 강의', progress: 35, vimeoId: '1080062038', h: 'a82fdaaea1' }
+      ],
+      db: [
+        { title: 'DB 활용 자동화 강의', progress: 90, vimeoId: '1060001627', h: 'c3a647d159' },
+        { title: 'DB 리마케팅 노하우', progress: 40, vimeoId: '1072379675', h: '446a6157f2' }
+      ],
+      duty: [
+        { title: '의무 서류 체크포인트', progress: 70, vimeoId: '1062669488', h: '1f2c038edf' },
+        { title: '청약서류 리스크 관리', progress: 45, vimeoId: '1057695260', h: '54ae0b05ba' }
+      ]
+    };
+
+    function getProfileFromStorageOrUrl() {
+      const params = new URLSearchParams(window.location.search);
+      const fromUrl = params.get('profile');
+      if (fromUrl) {
+        localStorage.setItem('selectedProfile', fromUrl);
+        return fromUrl;
+      }
+      return localStorage.getItem('selectedProfile');
+    }
+
+    function resetProfile() {
+      localStorage.removeItem('selectedProfile');
+      location.href = 'index.html'; // 또는 프로필 선택 페이지로
+    }
+
+    function openModal(id, h) {
+      document.getElementById('videoModal').style.display = 'flex';
+      document.getElementById('videoFrame').src = `https://player.vimeo.com/video/${id}?h=${h}&autoplay=1`;
+    }
+
+    function closeModal() {
+      const iframe = document.getElementById('videoFrame');
+      iframe.src = '';
+      document.getElementById('videoModal').style.display = 'none';
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const profile = getProfileFromStorageOrUrl();
+      const name = profileNameMap[profile] || '설계사';
+
+      document.getElementById('userProfile').textContent = `${name}님 접속 중`;
+      document.getElementById('welcomeText').textContent = `${name}님을 위한 강의를 준비했습니다.`;
+
+      const courseList = document.getElementById('courseList');
+      courseList.innerHTML = '';
+
+      (courseData[profile] || [])
+        .sort((a, b) => b.progress - a.progress)
+        .forEach(course => {
+          const card = document.createElement('div');
+          card.className = 'course-card';
+          card.onclick = () => openModal(course.vimeoId, course.h);
+
+          const thumb = document.createElement('img');
+          thumb.className = 'course-thumb';
+          thumb.src = `https://vumbnail.com/${course.vimeoId}.jpg`;
+          thumb.alt = course.title;
+
+          card.innerHTML = `
+            <div class="course-info">
+              <div class="course-title">${course.title}</div>
+              <div class="progress"><div class="progress-bar" style="width:${course.progress}%"></div></div>
+            </div>
+          `;
+          card.prepend(thumb);
+          courseList.appendChild(card);
+        });
+    });
+  </script>
+</body>
+</html>
