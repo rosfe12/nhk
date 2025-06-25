@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>흥국생명 With You - 프로필 선택</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+      font-family: 'Noto Sans KR', sans-serif;
+    }
+
+    #youtube-bg {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -2;
+      pointer-events: none;
+    }
+
+    .overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: -1;
+    }
+
+    .container {
+      z-index: 1;
+      position: relative;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: white;
+    }
+
+    .title {
+      font-size: 2.5rem;
+      font-weight: bold;
+      margin-bottom: 40px;
+    }
+
+    .profiles {
+      display: flex;
+      gap: 40px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .profile-card {
+      width: 160px;
+      height: 220px;
+      border-radius: 16px;
+      background-size: cover;
+      background-position: center;
+      text-align: center;
+      font-weight: bold;
+      color: white;
+      display: flex;
+      align-items: end;
+      justify-content: center;
+      position: relative;
+      text-decoration: none;
+      box-shadow: 0 0 10px rgba(0,0,0,0.4);
+      transition: transform 0.3s ease;
+    }
+
+    .profile-card::after {
+      content: "";
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: linear-gradient(to top, rgba(0,0,0,0.6), rgba(0,0,0,0));
+      border-radius: 16px;
+    }
+
+    .profile-card span {
+      z-index: 1;
+      margin-bottom: 20px;
+    }
+
+    .profile-card:hover {
+      transform: scale(1.08);
+    }
+
+    /* ✅ 프로필별 배경 이미지 경로 반영 */
+    .ga {
+      background-image: url('https://sdmntprsouthcentralus.oaiusercontent.com/files/00000000-e364-61f7-a19b-d967b567b809/ga.jpg');
+    }
+    .hk {
+      background-image: url('https://sdmntprsouthcentralus.oaiusercontent.com/files/00000000-e364-61f7-a19b-d967b567b809/hk.jpg');
+    }
+    .db {
+      background-image: url('https://sdmntprsouthcentralus.oaiusercontent.com/files/00000000-e364-61f7-a19b-d967b567b809/db.jpg');
+    }
+    .duty {
+      background-image: url('https://sdmntprsouthcentralus.oaiusercontent.com/files/00000000-e364-61f7-a19b-d967b567b809/duty.jpg');
+    }
+
+    .footer {
+      margin-top: 30px;
+      font-size: 0.9rem;
+      color: #ccc;
+    }
+
+    .logout-btn {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 8px 14px;
+      background: #E6007E;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+      display: none;
+    }
+
+    @media (max-width: 600px) {
+      .profile-card {
+        width: 130px;
+        height: 180px;
+      }
+      .title {
+        font-size: 1.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- YouTube 배경 영상 -->
+  <div id="youtube-bg">
+    <iframe id="ytplayer" width="100%" height="100%" 
+      src="https://www.youtube.com/embed/elgMZEYNafI?autoplay=1&mute=1&controls=0&showinfo=0&modestbranding=1&loop=1&playlist=elgMZEYNafI&rel=0"
+      frameborder="0"
+      allow="autoplay; encrypted-media"
+      allowfullscreen>
+    </iframe>
+  </div>
+
+  <div class="overlay"></div>
+
+  <div class="container">
+    <div class="title">흥국생명 With You</div>
+    <div class="profiles">
+      <a href="02_메인대시보드.html?profile=ga" class="profile-card ga" onclick="saveProfile('ga')"><span>GA 설계사</span></a>
+      <a href="02_메인대시보드.html?profile=hk" class="profile-card hk" onclick="saveProfile('hk')"><span>HK 설계사</span></a>
+      <a href="02_메인대시보드.html?profile=db" class="profile-card db" onclick="saveProfile('db')"><span>DB 설계사</span></a>
+      <a href="02_메인대시보드.html?profile=duty" class="profile-card duty" onclick="saveProfile('duty')"><span>의무 담당자</span></a>
+    </div>
+    <div class="footer">프로필을 선택해 주세요</div>
+  </div>
+
+  <button class="logout-btn" onclick="resetProfile()">프로필 초기화</button>
+
+  <script>
+    function saveProfile(profile) {
+      localStorage.setItem('selectedProfile', profile);
+    }
+
+    function resetProfile() {
+      localStorage.removeItem('selectedProfile');
+      location.reload();
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const saved = localStorage.getItem('selectedProfile');
+      if (saved) {
+        document.querySelector('.logout-btn').style.display = 'block';
+      }
+    });
+  </script>
+</body>
+</html>
