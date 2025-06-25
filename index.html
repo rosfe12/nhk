@@ -49,15 +49,17 @@
     }
 
     .profiles {
-      display: flex;
-      gap: 40px;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+  gap: 20px;
+  max-width: 400px;
+  width: 100%;
+  justify-items: center;
+}
 
     .profile-card {
-      width: 120px;
-      height: 165px;
+      width: 100px;
+      height: 130px;
       border-radius: 16px;
       background-size: cover;
       background-position: center;
